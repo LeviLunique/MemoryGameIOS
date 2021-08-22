@@ -5,9 +5,9 @@ struct MemoryGame<CardContent> where CardContent: Equatable{
     
     private var indexOfPreviousChosenCard: Int?{
         get{
-            cards.indices.filter{ cards[$0].isFacedUp }.only
+            cards.indices.filter{ cards[$0].isFaceUp }.only
         }set{
-            cards.indices.forEach{ cards[$0].isFacedUp = $0 == newValue}
+            cards.indices.forEach{ cards[$0].isFaceUp = $0 == newValue}
         }
     }
     
@@ -15,11 +15,6 @@ struct MemoryGame<CardContent> where CardContent: Equatable{
         cards.allSatisfy{$0.isMatched}
     }
     
-    /*
-     1- Gerar cartas - criar partida
-     2- Função para escolher uma carta
-     3- Detectar fim do jogo
-     */
     
     init(numberOfPairsOfCards: Int, cardFactory: (Int) -> CardContent){
         cards = Array<Card>()
@@ -44,17 +39,63 @@ struct MemoryGame<CardContent> where CardContent: Equatable{
                 indexOfPreviousChosenCard = chosenCardIndex
             }
             
-            cards[chosenCardIndex].isFacedUp = true
+            cards[chosenCardIndex].isFaceUp = true
             
         }
     }
     
     struct Card: Identifiable{
         var id: Int
-        var isFacedUp: Bool = false
+        var isFaceUp: Bool = false{
+            didSet{
+                if isFaceUp{
+                    beginUsingBonusTime()
+                } else {
+                    stopUsingBonustime()
+                }
+            }
+        }
         
-        var isMatched: Bool = false
+        var isMatched: Bool = false {
+            didSet{
+                stopUsingBonustime()
+            }
+        }
         
         var content: CardContent
+        
+        var bonusTime: TimeInterval = 10
+        
+        var lastTimeFacingUp: Date?
+        var lastIntervalFacingUp: TimeInterval = 0
+        
+        private var timeFacingUp: TimeInterval{
+            if let lastFlip = lastTimeFacingUp{
+                return lastIntervalFacingUp + Date().timeIntervalSince(lastFlip)
+            }
+            return lastIntervalFacingUp
+        }
+        
+        var bonusTimeRemaining: TimeInterval{
+            max(0, bonusTime - timeFacingUp)
+        }
+        
+        var bonusRemaining: Double{
+            (bonusTime > 0 && bonusTimeRemaining > 0) ? bonusTimeRemaining / bonusTime : 0
+        }
+        
+        var isConsumingBonusTime: Bool{
+            isFaceUp && !isMatched && bonusTimeRemaining > 0
+        }
+        private mutating func beginUsingBonusTime(){
+            if lastTimeFacingUp == nil{
+                lastTimeFacingUp = Date()
+            }
+        }
+        
+        private mutating func stopUsingBonustime(){
+            lastIntervalFacingUp = timeFacingUp
+            lastTimeFacingUp = nil
+        }
     }
 }
