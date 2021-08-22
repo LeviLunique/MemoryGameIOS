@@ -3,7 +3,17 @@ import Foundation
 struct MemoryGame<CardContent> where CardContent: Equatable{
     var cards: Array<Card>
     
-    private var indexOfPreviousChosenCard: Int?
+    private var indexOfPreviousChosenCard: Int?{
+        get{
+            cards.indices.filter{ cards[$0].isFacedUp }.only
+        }set{
+            cards.indices.forEach{ cards[$0].isFacedUp = $0 == newValue}
+        }
+    }
+    
+    var gameHasEnded: Bool{
+        cards.allSatisfy{$0.isMatched}
+    }
     
     /*
      1- Gerar cartas - criar partida
