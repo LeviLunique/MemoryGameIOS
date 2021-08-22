@@ -28,6 +28,7 @@ struct MemoryGame<CardContent> where CardContent: Equatable{
                     cards[chosenCardIndex].isMatched = true
                     cards[possibleMatch].isMatched = true
                 }
+                cards.shuffle()
                 
             } else {
                 indexOfPreviousChosenCard = chosenCardIndex

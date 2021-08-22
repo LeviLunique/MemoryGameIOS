@@ -15,15 +15,21 @@ struct ContentView: View {
         
         HStack {
             ForEach(viewModel.cards){ card in
-                Text(card.content)
-                    .makeCard(isFaceUp: card.isFacedUp)
-                    .onTapGesture {
-                        viewModel.choose(card: card)
-                    }
+                GeometryReader{geometry in
+                    Text(card.content)
+                        .makeCard(isFaceUp: card.isFacedUp)
+                        .font(.system(size: fontSize(for: geometry.size)))
+                        .onTapGesture {
+                            viewModel.choose(card: card)
+                        }                }
             }
         }
         .font(Font.system(size: 30))
         .foregroundColor(Color.red)
+    }
+    
+    private func fontSize(for size: CGSize) -> CGFloat{
+        return min(size.width, size.height) * 0.7
     }
 }
 
