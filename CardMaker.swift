@@ -11,14 +11,17 @@ struct CardMaker: ViewModifier {
     
     var isFaceUp: Bool
     
-    let cornerRadius: CGFloat = 12
+    let cornerRadius: CGFloat
     let lineWidth: CGFloat = 4
     
     private var rotation: Double
-    init (isFaceUp: Bool){
+    
+    init (isFaceUp: Bool, cornerRadius: CGFloat){
         self.isFaceUp = isFaceUp
         self.rotation = isFaceUp ? 0 : 180
+        self.cornerRadius = cornerRadius
     }
+    
     func body(content: Content) -> some View{
         ZStack {
             Group {
@@ -28,6 +31,7 @@ struct CardMaker: ViewModifier {
                     .stroke(lineWidth: lineWidth)
                 content
             }.opacity (isFaceUp ? 1 : 0)
+            
             RoundedRectangle(cornerRadius: cornerRadius)
                 .fill()
                 .opacity(isFaceUp ? 0 : 1)
@@ -38,7 +42,8 @@ struct CardMaker: ViewModifier {
 }
 
 extension View {
-    func makeCard(isFaceUp: Bool = false) -> some View {
-        return self.modifier(CardMaker(isFaceUp: isFaceUp))
+    func makeCard(isFaceUp: Bool = false, cornerRadius: CGFloat) -> some View {
+        return self.modifier(CardMaker(isFaceUp: isFaceUp, cornerRadius: cornerRadius))
     }
+    
 }

@@ -5,16 +5,25 @@
 //  Created by user204006 on 8/15/21.
 //
 
-import Foundation
+import SwiftUI
 
 //ViewModel MVVM
 class EmojiMemoryGame: ObservableObject{
     
-    @Published
-    var model: MemoryGame<String> = EmojiMemoryGame.createMemoryGame()
+    var theme: Theme<String>
     
-    static func createMemoryGame() -> MemoryGame<String>{
-        var emojis = ["🤔", "😮", "😳", "🙃", "🥲", "🥸", "🧐", "🌚"]
+    init(theme: Theme<String>){
+        self.theme = theme
+        self.model = EmojiMemoryGame.createMemoryGame(theme: theme)
+    }
+    
+    @Published
+    var model: MemoryGame<String>
+
+    
+    static func createMemoryGame(theme: Theme<String>) -> MemoryGame<String>{
+        //var emojis = ["🤔", "😮", "😳", "🙃", "🥲", "🥸", "🧐", "🌚"]
+        var emojis = theme.cardFaceOptions.shuffled()
         emojis = emojis.dropLast(emojis.count - Int.random(in: 2...5))
         
         return MemoryGame (numberOfPairsOfCards: emojis.count) {emojis[$0]}
@@ -22,11 +31,20 @@ class EmojiMemoryGame: ObservableObject{
     
     // MARK: - Acesso da Viewe à Model
     var cards: Array<MemoryGame<String>.Card>{
-        model.cards
+        print(model.cards)
+        return model.cards
     }
     
     var gameHasEnded: Bool{
         model.gameHasEnded
+    }
+    
+    var themeColor: Color{
+        (theme.details["color"] as? Color) ?? Color.black
+    }
+    
+    var themeCornerRadius: CGFloat{
+        CGFloat(theme.details["cornerRadius"] as? Int ?? 8)
     }
     
     // MARK: - Processamento de Intenções
@@ -35,6 +53,6 @@ class EmojiMemoryGame: ObservableObject{
     }
     
     func newGame(){
-        model = EmojiMemoryGame.createMemoryGame()
+        model = EmojiMemoryGame.createMemoryGame(theme: theme)
     }
 }
